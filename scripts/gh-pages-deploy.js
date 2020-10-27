@@ -6,13 +6,14 @@ const fs = require("fs");
     await execa("git", ["checkout", "--orphan", "gh-pages"]);
     // eslint-disable-next-line no-console
     console.log("Building started...");
-    await execa("npm", ["run", "build"]);
+    await execa("yarn", ["build"]);
     // Understand if it's dist or build folder
     const folderName = fs.existsSync("dist") ? "dist" : "build";
     // Create CNAME file with the custom domain name
     const strm = fs.createWriteStream(folderName + '/CNAME');
     strm.write('client.doupak.cz');
     strm.end();
+    console.log("CNAME created");
     await execa("git", ["--work-tree", folderName, "add", "--all"]);
     await execa("git", ["--work-tree", folderName, "commit", "-m", "gh-pages"]);
     console.log("Pushing to gh-pages...");
