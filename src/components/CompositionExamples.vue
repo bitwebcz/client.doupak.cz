@@ -31,9 +31,10 @@ export default {
     }
 
 
-
-
+    // In-component store
     const store = useStore()
+    const sotredData = computed(() => store.state.auth.total)
+
     // In-component routing
     const router = useRouter()
     router.beforeEach((to, from, next) => {
@@ -41,7 +42,6 @@ export default {
     })
     // In-component routing information
     const currentRoute = useRoute().path
-    const sotredData = computed(() => store.state.auth.total)
 
 
 

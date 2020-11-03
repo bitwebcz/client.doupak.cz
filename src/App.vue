@@ -1,15 +1,15 @@
 <template>
-    <div id="nav">
-      <router-link :to="{ name: 'Home' }">Home</router-link> |
-      <router-link :to="{ name: 'About' }">About</router-link>
-    </div>
-    <router-view />
+    <component :is="this.$route.meta.layout || 'AppLayout'" />
 </template>
 
-
 <script>
+import AppLayout from "@/layouts/AppLayout";
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+      AppLayout
+  }
 }
 </script>
 

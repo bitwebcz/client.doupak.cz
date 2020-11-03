@@ -5,6 +5,13 @@
   <routerExamples />
   <apolloExamples />
   <compositionExamples />
+
+  <br>
+
+  <dialog-window>
+      <template #button>Button text</template>
+      <template #aside>Dialog windows text</template>
+  </dialog-window>
 </template>
 
 

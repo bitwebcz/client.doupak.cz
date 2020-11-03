@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@apollo/client": "^3.2.5",
+    "@vee-validate/rules": "^4.0.0-beta.0",
     "@vue/apollo-composable": "^4.0.0-alpha.12",
     "core-js": "^3.6.5",
     "graphql": "^15.4.0",
     "graphql-tag": "^2.11.0",
+    "vee-validate": "^4.0.0-beta.16",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-rc.1",
     "vuex": "^4.0.0-beta.4"

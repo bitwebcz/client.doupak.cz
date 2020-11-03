@@ -3,6 +3,7 @@ import Home from "@/views/Home";
 import About from "@/views/About";
 import NotFound from "@/views/NotFound";
 import RouterExamples from "@/components/RouterExamples";
+import ErrorLayout from "@/layouts/ErrorLayout";
 
 const routes = [
   {
@@ -20,11 +21,17 @@ const routes = [
     path: "/about",
     name: "About",
     component: About,
+    meta: {
+        requiresAuth: true
+    }
   },
   {
     path: "/:catchAll(.*)",
     name: "NotFound",
     component: NotFound,
+    meta: {
+        layout: ErrorLayout
+    }
   },
 ]
 

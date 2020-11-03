@@ -1,26 +1,65 @@
 <template>
-  <v-main :loading="loading">
-    <v-container fluid fill-height>
-      <v-layout align-center justify-center>
-        <v-flex xs12 sm8 md4>
-          <v-card :loading="loading" :disabled="loading" class="elevation-12">
-            <slot name="content" />
-          </v-card>
-        </v-flex>
-      </v-layout>
-    </v-container>
-  </v-main>
+
+  {{ loading }}
+  <Form v-if="!isLogged" @submit="login" v-slot="{ errors }" :disabled="loading">
+     <Field name="email" type="text" :class="{ 'is-invalid': errors.email }" rules="required|email" />
+     <ErrorMessage name="email" />
+
+     <Field name="password" type="password" :class="{ 'is-invalid': errors.password }" rules="required|min:6" autocomplete="on" />
+     <ErrorMessage name="password" />
+
+     <button>Sign in</button>
+  </Form>
+
+  <Form v-if="isLogged" @submit="logout" :disabled="loading">
+     <button>Log out</button>
+  </Form>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { computed } from 'vue'
+import { Field, Form, ErrorMessage } from 'vee-validate'
+import { useStore } from "vuex"
+
 export default {
-  name: "LayoutsAuth",
-  metaInfo: {
-    titleTemplate: "ISPIK %s"
-  },
-  computed: mapState({
-    loading: state => state.core.auth.loading
-  })
-};
+    name: "Login",
+    components: {
+        Field,
+        Form,
+        ErrorMessage
+    },
+    setup() {
+      const store = useStore()
+
+      const loading = computed(() => store.state.auth.loading)
+      const isLogged = computed(() => store.state.auth.isLogged)
+
+      const login = values => {
+          store.dispatch("auth/login", values)
+               .then(() => {
+                  console.log('login okay')
+               })
+               .catch(() => {
+                  console.log('login not okay')
+               })
+      }
+
+      const logout = values => {
+          store.dispatch("auth/logout", values)
+               .then(() => {
+                  console.log('logout okay')
+               })
+               .catch(() => {
+                  console.log('logout not okay')
+               })
+      }
+
+      return {
+        login,
+        logout,
+        loading,
+        isLogged
+      }
+    }
+}
 </script>
