@@ -1,15 +1,21 @@
 import { createWebHistory } from "vue-router"
-import Home from "@/views/Home";
-import About from "@/views/About";
-import NotFound from "@/views/NotFound";
-import RouterExamples from "@/components/RouterExamples";
-import ErrorLayout from "@/layouts/ErrorLayout";
+import Home from "@/views/Home"
+import About from "@/views/About"
+import Login from "@/views/Login"
+import NotFound from "@/views/NotFound"
+import RouterExamples from "@/components/RouterExamples"
+import ErrorLayout from "@/layouts/ErrorLayout"
 
 const routes = [
   {
     path: "/",
     name: "Home",
     component: Home, // import("@/views/Home") // horthand
+  },
+  {
+    path: "/login",
+    name: "Login",
+    component: Login,
   },
   {
     path: "/user/:name",
