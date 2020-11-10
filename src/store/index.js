@@ -1,10 +1,7 @@
-import auth from "./modules/auth";
-import config from "./modules/config";
+import { createStore } from 'vuex'
+import modules from "./modules"
 
-export default {
-  namespaced: true,
-  modules: {
-    auth,
-    config
-  }
-};
+export default createStore({
+    namespaced: true,
+    modules: modules
+})

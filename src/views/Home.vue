@@ -1,6 +1,12 @@
 <template>
   <h1>Home Page</h1>
 
+  <d6 />
+
+  <d20 />
+
+  <d4 />
+
   <storeExamples />
   <routerExamples />
   <apolloExamples />
@@ -16,10 +22,13 @@
 
 
 <script>
-import StoreExamples from "@/components/StoreExamples";
-import RouterExamples from "@/components/RouterExamples";
-import ApolloExamples from "@/components/ApolloExamples";
-import CompositionExamples from "@/components/CompositionExamples";
+import StoreExamples from "@/components/StoreExamples"
+import RouterExamples from "@/components/RouterExamples"
+import ApolloExamples from "@/components/ApolloExamples"
+import CompositionExamples from "@/components/CompositionExamples"
+import D6 from "@/components/dice/D6"
+import D20 from "@/components/dice/D20"
+import D4 from "@/components/dice/D4"
 
 export default {
   name: 'Home',
@@ -27,7 +36,11 @@ export default {
       StoreExamples,
       RouterExamples,
       ApolloExamples,
-      CompositionExamples
+      CompositionExamples,
+      // DiceTest,
+      D6,
+      D20,
+      D4
   }
 }
 </script>

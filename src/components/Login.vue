@@ -1,15 +1,20 @@
 <template>
+  <dialog-window v-if="!isLogged">
+      <template #button>Log in</template>
 
-  {{ loading }}
-  <Form v-if="!isLogged" @submit="login" v-slot="{ errors }" :disabled="loading">
-     <Field name="email" type="text" :class="{ 'is-invalid': errors.email }" rules="required|email" />
-     <ErrorMessage name="email" />
+      <template #aside>
+          loading: {{ loading }}
+          <Form v-if="!isLogged" @submit="login" v-slot="{ errors }" :disabled="loading">
+             <Field name="email" type="text" :class="{ 'is-invalid': errors.email }" rules="required|email" />
+             <ErrorMessage name="email" />
 
-     <Field name="password" type="password" :class="{ 'is-invalid': errors.password }" rules="required|min:6" autocomplete="on" />
-     <ErrorMessage name="password" />
+             <Field name="password" type="password" :class="{ 'is-invalid': errors.password }" rules="required|min:6" autocomplete="on" />
+             <ErrorMessage name="password" />
 
-     <button>Sign in</button>
-  </Form>
+             <button>Sign in</button>
+          </Form>
+      </template>
+  </dialog-window>
 
   <Form v-if="isLogged" @submit="logout" :disabled="loading">
      <button>Log out</button>

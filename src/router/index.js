@@ -1,47 +1,27 @@
-import { createWebHistory } from "vue-router"
-import Home from "@/views/Home"
-import About from "@/views/About"
-import Login from "@/views/Login"
-import NotFound from "@/views/NotFound"
-import RouterExamples from "@/components/RouterExamples"
-import ErrorLayout from "@/layouts/ErrorLayout"
+import { createRouter, createWebHistory } from "vue-router"
+import { getToken } from '@/composables/authToken'
+import routes from './routes'
 
-const routes = [
-  {
-    path: "/",
-    name: "Home",
-    component: Home, // import("@/views/Home") // horthand
-  },
-  {
-    path: "/login",
-    name: "Login",
-    component: Login,
-  },
-  {
-    path: "/user/:name",
-    name: "RouterExamples",
-    component: RouterExamples,
-    props: true, // pass to component as prop (name)
-  },
-  {
-    path: "/about",
-    name: "About",
-    component: About,
-    meta: {
-        requiresAuth: true
-    }
-  },
-  {
-    path: "/:catchAll(.*)",
-    name: "NotFound",
-    component: NotFound,
-    meta: {
-        layout: ErrorLayout
-    }
-  },
-]
-
-export default {
+const router = createRouter({
   history: createWebHistory(),
   routes
-}
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!getToken()) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next() // make sure to always call next()!
+  }
+})
+
+export default router

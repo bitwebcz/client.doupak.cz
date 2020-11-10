@@ -4,8 +4,10 @@
   </button>
 
   <teleport to="aside" v-if="state.opened">
-      <slot name="aside">Dialog text</slot>
-      <button @click="close">Close</button>
+      <div>
+        <slot name="aside">Dialog text</slot>
+        <button @click="close">Close</button>
+      </div>
   </teleport>
 </template>
 
