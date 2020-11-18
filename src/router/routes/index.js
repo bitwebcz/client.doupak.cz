@@ -3,7 +3,7 @@ import error from "./error"
 import home from "./home"
 import login from "./login"
 import user from "./user"
-import teal from "./teal"
+import dice from "./dice"
 
 export default [
     ...about,
@@ -11,5 +11,5 @@ export default [
     ...home,
     ...login,
     ...user,
-    ...teal
+    ...dice
 ]

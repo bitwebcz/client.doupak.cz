@@ -78,7 +78,8 @@ export default {
             const result = throwDice(diceToRoll);
 
             result.forEach((die) => {
-                console.log('upper value: ' + die.shiftUpperValue(1));
+                // TODO: change vectors of upper side
+                console.log('upper value: ' + die.getUpsideValue())
             })
         }
 

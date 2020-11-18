@@ -1151,11 +1151,6 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/cannon@^0.1.2":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@types/cannon/-/cannon-0.1.5.tgz#2a265031f662fc4ff3e57e89688e1a06c3bbd2ce"
-  integrity sha512-o+FQmZV4fDXKI1W+1Rt3FNDmMGU7Iv4ObWFAH/dVB9AqzdgD7FmbW4QmsxVQGcj8a563xyVV9UXVB9rba7ps2w==
-
 "@types/connect-history-api-fallback@*":
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/@types/connect-history-api-fallback/-/connect-history-api-fallback-1.3.3.tgz#4772b79b8b53185f0f4c9deab09236baf76ee3b4"
@@ -1319,13 +1314,6 @@
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.6.tgz#a9ca4b70a18b270ccb2bc0aaafefd1d486b7ea74"
   integrity sha512-W+bw9ds02rAQaMvaLYxAbJ6cvguW/iJXNT6lTssS1ps6QdrMKttqEAMEG/b5CR8TZl3/L7/lH0ZV5nNR1LXikA==
 
-"@types/three@^0.89.11":
-  version "0.89.12"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.89.12.tgz#cab29544bbdfbbc62257dd48bf921eb3dc0e055a"
-  integrity sha512-765EF9eneCbmDluzVMJj6ix2EwrkjSSPHa5BuMKLZzYeh04Ho40iheRqHfRgRWbFbtj6oVfOB7V62ZvYYXJ0jA==
-  dependencies:
-    "@types/webvr-api" "*"
-
 "@types/uglify-js@*":
   version "3.11.1"
   resolved "https://registry.yarnpkg.com/@types/uglify-js/-/uglify-js-3.11.1.tgz#97ff30e61a0aa6876c270b5f538737e2d6ab8ceb"
@@ -1364,11 +1352,6 @@
     "@types/uglify-js" "*"
     "@types/webpack-sources" "*"
     source-map "^0.6.0"
-
-"@types/webvr-api@*":
-  version "0.0.35"
-  resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.35.tgz#13b3cf1cd90544524d932ed36e6b109a2ec73d22"
-  integrity sha512-jdpJqweU5v7hYwUlHKQU6wzjQvUfBfmTz4WBwVd/5PVGYalKm6YbEnM/3T+M+QzRYf2R/ojBGnrWpjHBZFR3Og==
 
 "@types/yargs-parser@*":
   version "15.0.0"
@@ -9901,20 +9884,10 @@ thread-loader@^2.1.3:
     loader-utils "^1.1.0"
     neo-async "^2.6.0"
 
-three@0.90.0, three@^0.90.0:
-  version "0.90.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.90.0.tgz#be478e7c0f82c5ae742c197db1e38e58b6190d1b"
-  integrity sha512-sCTgOp/0ITLy0bsUoNeUROq2Tt1G0+StfRBs9ljFTENRF5JkKlTjZ+RWSH6qyq6O3c5fDKRupfuqZE/+LbETiA==
-
-threejs-dice@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/threejs-dice/-/threejs-dice-1.1.0.tgz#796c1e94f2c12eeb89d97879beced0fa66bc47ce"
-  integrity sha512-OkC5DDyB6wymqTs9c85+F3Css3b6I7xiRosx7JFcQW55Ue95DSHVpdWNaaGKd5mfxFo3iwR+Q78vJXcZkC/yRw==
-  dependencies:
-    "@types/cannon" "^0.1.2"
-    "@types/three" "^0.89.11"
-    cannon "^0.6.2"
-    three "^0.90.0"
+three@0.122.0:
+  version "0.122.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.122.0.tgz#bd9ed8a8820074856e8ba7b63fe0a65176e01aeb"
+  integrity sha512-bgYMo0WdaQhf7DhLE8OSNN/rVFO5J4K1A2VeeKqoV4MjjuHjfCP6xLpg8Xedhns7NlEnN3sZ6VJROq19Qyl6Sg==
 
 throat@^4.0.0:
   version "4.1.0"

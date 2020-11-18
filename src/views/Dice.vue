@@ -1,17 +1,17 @@
 <template>
   <h1>Teal Dice Page</h1>
 
-  <teal />
+  <three-dice />
 </template>
 
 
 <script>
-import Teal from "@/components/Teal"
+import ThreeDice from "@/components/threeDice/ThreeDice"
 
 export default {
-  name: 'TealDice',
+  name: 'Dice',
   components: {
-      Teal
+      ThreeDice
   }
 }
 </script>
