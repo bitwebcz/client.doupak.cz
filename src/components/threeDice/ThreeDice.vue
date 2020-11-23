@@ -7,6 +7,7 @@
         <input type="text" v-model="formula"  />
         <button @click="roll">Throw me maybe</button>
         <button @click="clearRoll">Clear me maybe</button>
+        <button @click="getUpsideValues">Get upside values</button>
     </div>
 </teleport>
 <div ref="diceTray" id="dicetray"></div>
@@ -26,10 +27,10 @@ export default {
         const {
             initThree,
             initCannon,
-            initDice,
             animate,
             throwDice,
-            clearDice
+            clearDice,
+            getUpsideValues
         } = useDice()
 
         const diceTypes = [4, 6, 8, 10, 12, 20]
@@ -75,18 +76,12 @@ export default {
                 }
             })
 
-            const result = throwDice(diceToRoll);
-
-            result.forEach((die) => {
-                // TODO: change vectors of upper side
-                console.log('upper value: ' + die.getUpsideValue())
-            })
+            throwDice(diceToRoll);
         }
 
         onMounted(() => {
             initThree(state.diceTray)
             initCannon()
-            initDice()
             animate()
         })
 
@@ -96,7 +91,8 @@ export default {
             diceSymbol,
             addToRoll,
             clearRoll,
-            roll
+            roll,
+            getUpsideValues
         }
     }
 }

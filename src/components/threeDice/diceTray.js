@@ -74,6 +74,35 @@ export default function useDice() {
   function initDice() {
       DiceManager.setWorld(world);
 
+      var colors = ['#ff0000', '#ffff00', '#00ff00', '#0000ff', '#ff00ff'];
+        for (var i = 0; i < 5; i++) {
+            var die = new DiceD6({size: 1.5, backColor: colors[i]});
+            scene.add(die.getObject());
+            dice.push(die);
+        }
+
+
+         // setInterval(randomDiceThrow, 3000);
+         var diceValues = [];
+         for (i = 0; i < dice.length; i++) {
+             let yRand = Math.random() * 20
+             dice[i].getObject().position.x = -15 - (i % 3) * 1.5;
+             dice[i].getObject().position.y = 2 + Math.floor(i / 3) * 1.5;
+             dice[i].getObject().position.z = -15 + (i % 3) * 1.5;
+             dice[i].getObject().quaternion.x = (Math.random()*90-45) * Math.PI / 180;
+             dice[i].getObject().quaternion.z = (Math.random()*90-45) * Math.PI / 180;
+             dice[i].updateBodyFromMesh();
+             let rand = Math.random() * 5;
+             dice[i].getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
+             dice[i].getObject().body.angularVelocity.set(20 * Math.random() -10, 20 * Math.random() -10, 20 * Math.random() -10);
+
+             diceValues.push({dice: dice[i], value: 3});
+         }
+
+         // DiceManager.prepareValues(diceValues);
+
+         requestAnimationFrame( animate );
+
       const diceTypes = [
           { obj: DiceD4, color: '#ff0000'},
           { obj: DiceD4, color: '#00ff00'},
@@ -89,33 +118,73 @@ export default function useDice() {
           { obj: DiceD20, color: '#0000ff'},
       ];
 
-      diceTypes.forEach((dieType) => {
-          const die = new dieType.obj({size: 1.5, backColor: dieType.color});
-          scene.add(die.getObject());
-          dice.push(die);
-      });
+      console.log(diceTypes);
+      // diceTypes.forEach((dieType) => {
+      //     const die = new dieType.obj({size: 1.5, backColor: dieType.color});
+      //     scene.add(die.getObject());
+      //     dice.push(die);
+      // });
   }
 
-  function randomDiceThrow() {
-      var diceValues = [];
+  function throwDice(diceToRoll) {
 
+      console.log(diceToRoll)
+
+
+      // var diceValues = [];
       for (var i = 0; i < dice.length; i++) {
-          let yRand = Math.random() * 20
-          dice[i].getObject().position.x = -15 - (i % 3) * 1.5;
-          dice[i].getObject().position.y = 2 + Math.floor(i / 3) * 1.5;
-          dice[i].getObject().position.z = -15 + (i % 3) * 1.5;
-          dice[i].getObject().quaternion.x = (Math.random()*90-45) * Math.PI / 180;
-          dice[i].getObject().quaternion.z = (Math.random()*90-45) * Math.PI / 180;
-          dice[i].updateBodyFromMesh();
-          let rand = Math.random() * 5;
-          dice[i].getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
-          dice[i].getObject().body.angularVelocity.set(20 * Math.random() -10, 20 * Math.random() -10, 20 * Math.random() -10);
+          // dice[i].getObject().position.x = -15 - (i % 3) * 1.5;
+          // dice[i].getObject().position.y = 2 + Math.floor(i / 3) * 1.5;
+          // dice[i].getObject().position.z = -15 + (i % 3) * 1.5;
+          // dice[i].getObject().quaternion.x = (Math.random()*90-45) * Math.PI / 180;
+          // dice[i].getObject().quaternion.z = (Math.random()*90-45) * Math.PI / 180;
+          // dice[i].updateBodyFromMesh();
 
-          diceValues.push({dice: dice[i], value: 1});
+          // let yRand = Math.random() * 20
+          // let rand = Math.random() * 5;
+          // dice[i].getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
+          // dice[i].getObject().body.angularVelocity.set(20 * Math.random() -10, 20 * Math.random() -10, 20 * Math.random() -10);
+          dice[i].emulateThrow(function(asd){
+              console.log(asd)
+          });
+
+
+          // diceValues.push({dice: dice[i], value: 3});
       }
 
-      DiceManager.prepareValues(diceValues);
+      // DiceManager.prepareValues(diceValues);
+
+
   }
+
+  function clearDice() {
+      dice.forEach((die) => {
+          scene.remove(die.getObject());
+      });
+
+      dice = [];
+  }
+
+  // function randomDiceThrow() {
+  //     var diceValues = [];
+  //
+  //     for (var i = 0; i < dice.length; i++) {
+  //         let yRand = Math.random() * 20
+  //         dice[i].getObject().position.x = -15 - (i % 3) * 1.5;
+  //         dice[i].getObject().position.y = 2 + Math.floor(i / 3) * 1.5;
+  //         dice[i].getObject().position.z = -15 + (i % 3) * 1.5;
+  //         dice[i].getObject().quaternion.x = (Math.random()*90-45) * Math.PI / 180;
+  //         dice[i].getObject().quaternion.z = (Math.random()*90-45) * Math.PI / 180;
+  //         dice[i].updateBodyFromMesh();
+  //         let rand = Math.random() * 5;
+  //         dice[i].getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
+  //         dice[i].getObject().body.angularVelocity.set(20 * Math.random() -10, 20 * Math.random() -10, 20 * Math.random() -10);
+  //
+  //         diceValues.push({dice: dice[i], value: 1});
+  //     }
+  //
+  //     DiceManager.prepareValues(diceValues);
+  // }
 
   function animate() {
       updatePhysics();
@@ -135,5 +204,5 @@ export default function useDice() {
       renderer.render( scene, camera );
   }
 
-  return { initThree, initCannon, initDice, animate, randomDiceThrow };
+  return { initThree, initCannon, initDice, animate, throwDice, clearDice };
 }

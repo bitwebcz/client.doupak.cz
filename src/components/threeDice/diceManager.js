@@ -43,7 +43,6 @@ class DiceManagerClass {
         this.throwRunning = true;
 
         for (let i = 0; i < diceValues.length; i++) {
-            diceValues[i].dice.simulationRunning = true;
             diceValues[i].vectors = diceValues[i].dice.getCurrentVectors();
             diceValues[i].stableCount = 0;
         }
@@ -69,11 +68,11 @@ class DiceManagerClass {
                 for (let i = 0; i < diceValues.length; i++) {
                     diceValues[i].dice.shiftUpperValue(diceValues[i].value);
                     diceValues[i].dice.setVectors(diceValues[i].vectors);
-                    diceValues[i].dice.simulationRunning = false;
                 }
 
                 this.throwRunning = false;
             } else {
+                // hide simulation roll
                 DiceManager.world.step(DiceManager.world.dt);
             }
         };
@@ -86,9 +85,9 @@ class DiceObject {
     /**
      * @constructor
      * @param {object} options
-     * @param {Number} [options.size = 100]
-     * @param {Number} [options.fontColor = '#000000']
-     * @param {Number} [options.backColor = '#ffffff']
+     * @param {Number} [options.size = 2]
+     * @param {Number} [options.fontColor = '#ffffff']
+     * @param {Number} [options.backColor = '#ff0000']
      */
     constructor(options) {
         options = this.setDefaults(options, {
@@ -146,6 +145,34 @@ class DiceObject {
         DiceManager.world.addEventListener('postStep', check);
     }
 
+    // only usable with single die roll (due to single postStep event)
+    rollToValue(value) {
+        let stableCount = 0;
+        // remember the emulated roll vectors
+        const rollVectors = this.getCurrentVectors();
+
+        let check = () => {
+            if (this.isFinished()) {
+                stableCount++;
+
+                if (stableCount > 50) {
+                    DiceManager.world.removeEventListener('postStep', check);
+                    // shift the upper face value
+                    this.shiftUpperValue(value)
+                    // repeat the roll with the same vectors
+                    this.setVectors(rollVectors);
+                }
+            } else {
+                stableCount = 0;
+            }
+
+            // hide the emulated roll
+            DiceManager.world.step(DiceManager.world.dt);
+        };
+
+        DiceManager.world.addEventListener('postStep', check);
+    }
+
     isFinished() {
         let threshold = 1;
 
@@ -157,7 +184,7 @@ class DiceObject {
     }
 
     getUpsideValue() {
-        let vector = new THREE.Vector3(0, this.invertUpside ? -1 : 1);
+        let vector = new THREE.Vector3(0, 0, this.invertUpside ? -1 : 1);
         let closest_face;
         let closest_angle = Math.PI * 2;
         for (let i = 0; i < this.object.geometry.faces.length; ++i) {
@@ -204,6 +231,10 @@ class DiceObject {
             while (materialIndex < 1) materialIndex += this.values;
 
             geometry.faces[i].materialIndex = materialIndex + 1;
+        }
+
+        if (this.values == 4) {
+            this.updateMaterialsForValue(toValue - fromValue);
         }
 
         this.object.geometry = geometry;
@@ -378,14 +409,19 @@ class DiceObject {
         this.object.body.angularDamping = 0.1;
         DiceManager.world.add(this.object.body);
 
+        // COLISION EVENT - for sounds maybe
+        // this.object.body.addEventListener("collide", function(e){
+        //       console.log("The CUBE just collided with the ground!");
+        //       console.log("Collided with body:",e.body);
+        //       console.log("Contact between bodies:",e.contact);
+        // });
+
         return this.object;
     }
 
     updateMeshFromBody() {
-        if (!this.simulationRunning) {
-            this.object.position.copy(this.object.body.position);
-            this.object.quaternion.copy(this.object.body.quaternion);
-        }
+        this.object.position.copy(this.object.body.position);
+        this.object.quaternion.copy(this.object.body.quaternion);
     }
 
     updateBodyFromMesh() {
@@ -405,7 +441,21 @@ export class DiceD4 extends DiceObject {
         this.faces = [[1, 0, 2, 1], [0, 1, 3, 2], [0, 3, 2, 3], [1, 2, 3, 4]];
         this.scaleFactor = 1.2;
         this.values = 4;
-        this.faceTexts = [[], ['0', '0', '0'], ['2', '4', '3'], ['1', '3', '4'], ['2', '1', '4'], ['1', '2', '3']];
+
+        this.d4FaceTexts = [
+            [[], [0, 0, 0], [2, 4, 3], [1, 3, 4], [2, 1, 4], [1, 2, 3]],
+            [[], [0, 0, 0], [2, 3, 4], [3, 1, 4], [2, 4, 1], [3, 2, 1]],
+            [[], [0, 0, 0], [4, 3, 2], [3, 4, 1], [4, 2, 1], [3, 1, 2]],
+            [[], [0, 0, 0], [4, 2, 3], [1, 4, 3], [4, 1, 2], [1, 3, 2]]
+        ];
+        this.faceTexts = this.d4FaceTexts[0];
+        // function specific for d4
+        this.updateMaterialsForValue = function(diceValue) {
+            if (diceValue < 0) diceValue += 4;
+            this.faceTexts = this.d4FaceTexts[diceValue];
+            this.object.material = this.getMaterials();
+        };
+
         this.customTextTextureFunction = function (text, color, backColor) {
             let canvas = document.createElement("canvas");
             let context = canvas.getContext("2d");
