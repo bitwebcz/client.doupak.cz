@@ -1,13 +1,20 @@
 <template>
 <teleport to="aside">
     <div id="controlpanel">
-        <a v-for="diceType of diceTypes" :key="diceType" @click="addToRoll(diceType)">
+        <a v-for="diceType in diceTypes" :key="diceType" @click="addDice(diceType)">
             {{diceSymbol}}{{diceType}}
         </a>
-        <input type="text" v-model="formula"  />
-        <button @click="roll">Throw me maybe</button>
-        <button @click="clearRoll">Clear me maybe</button>
-        <button @click="getUpsideValues">Get upside values</button>
+        <input type="text" v-model="formula" :disabled="rolling" @blur="formulaToDice" />
+        <button @click="roll" :disabled="rolling">Throw me maybe</button>
+        <button @click="clearRoll" :disabled="rolling">Clear me maybe</button>
+    </div>
+
+    <div id="resultpanel">
+        <!-- <template v-for="(values, diceType) in upsideValues" :key="diceType">
+            (<template v-for="val in values" :key="val">{{val}}+</template >)+
+        </template >
+        <a>{{ addition }}</a> -->
+        RESULT: {{result}} <span v-if="addition">+ {{addition}}</span >
     </div>
 </teleport>
 <div ref="diceTray" id="dicetray"></div>
@@ -17,7 +24,9 @@
 import {
     reactive,
     onMounted,
-    toRefs
+    toRefs,
+    computed,
+    watchEffect
 } from 'vue'
 import useDice from './diceTrayTop'
 
@@ -29,54 +38,118 @@ export default {
             initCannon,
             animate,
             throwDice,
-            clearDice,
-            getUpsideValues
+            clearDice
         } = useDice()
 
         const diceTypes = [4, 6, 8, 10, 12, 20]
         const diceSymbol = 'd'
 
         const state = reactive({
-            diceTray: null, // diceTray element
-            formula: '2d6',
+            diceTray: null, // diceTray element ref
+            rolling: false,
+            result: computed(() => getResult()),
+            formula: '',
+            upsideValues: {},
+            addition: 0,
+            diceToRoll: {6:1} // {diceType:count}
         })
 
-        function addToRoll(diceType) {
-            const regex = new RegExp('[0-9]+' + diceSymbol + diceType + '(?![0-9])' , 'g')
-            const match = regex.exec(state.formula)
+        watchEffect(() => {
+          state.formula = getFormula() // dependant on diceToRoll and addition
+        })
 
-            if (!match) {
-                state.formula += (state.formula ? '+' : '') + '1' + diceSymbol + diceType
-            } else {
-                const increment = (parseInt(match[0], 10) + 1) + diceSymbol + diceType
-                // replace on the exact position in case of multiple matches
-                state.formula = state.formula.slice(0, match.index)
-                              + increment
-                              + state.formula.slice(match.index + match[0].length)
-            }
-        }
+        // function isValidFormula(formula) {
+        //     console.log('validating formula')
+        //     let isValid = formula.trim() != state.formula
+        //     const regex = new RegExp('(^[0-9]+' + diceSymbol + '(' + diceTypes.join('|') + ')$)|(^[0-9]+$)' , 'g')
+        //     const formulaExpressions = formula.replace(/\s/g, '').split(/[+-]+/)
+        //     formulaExpressions.forEach((expression) => {
+        //         if (!expression.match(regex)) {
+        //             isValid = false
+        //         }
+        //     })
+        //
+        //     return isValid
+        // }
 
-        function clearRoll() {
-            state.formula = ''
-            clearDice()
-        }
-
-        function roll() {
-            const regex = new RegExp('[0-9]+' + diceSymbol + '(100|4|8|6|10|12|20)' , 'g')
+        function formulaToDice() {
+            console.log('setting formula')
+            const regex = new RegExp('[0-9]+' + diceSymbol + '(' + diceTypes.join('|') + ')' , 'g')
             const match = state.formula.match(regex) || []
-            const diceToRoll = [];
+            const diceToRoll = {}
+            let formula = state.formula.slice()
 
             match.forEach((string) => {
+                formula = formula.replace(string, '')
                 let count = parseInt(string, 10)
-                const diceType = string.replace(count, '')
+                const diceType = string.replace(count, '').replace(diceSymbol, '')
 
                 while (count > 0) {
-                   diceToRoll.push(diceType)
+                   diceToRoll[diceType] = diceToRoll[diceType] || 0
+                   diceToRoll[diceType]++
                    count--
                 }
             })
 
-            throwDice(diceToRoll);
+            state.diceToRoll = {...diceToRoll}
+            state.addition = getAddition(formula)
+        }
+
+        function getAddition(formula) {
+            console.log('getting addition')
+            let addition = 0;
+            const regex = new RegExp('[+|-][0-9]+', 'g')
+            const match = formula.replace(/\s/g, '').match(regex) || []
+            match.forEach((string) => {
+                const num = parseInt(string, 10)
+                addition += num
+            })
+
+            return addition;
+        }
+
+        function getFormula() {
+            console.log('getting formula')
+            let formula = ''
+            Object.entries(state.diceToRoll).forEach(entry => {
+                const [dieType, count] = entry;
+                formula += (formula ? ' + ' : '') + count + diceSymbol + dieType
+            })
+
+            return formula.slice() + (state.addition ? ' + ' + state.addition : '')
+        }
+
+        function addDice(diceType) {
+            state.diceToRoll[diceType] = state.diceToRoll[diceType] || 0
+            state.diceToRoll[diceType]++
+        }
+
+        function getResult() {
+            console.log('getting result')
+            let result = 0
+            Object.values(state.upsideValues).forEach(values => {
+                values.forEach(val => {
+                    result += val
+                })
+            })
+
+            return result
+        }
+
+        function clearRoll() {
+            state.upsideValues = {}
+            state.diceToRoll = {}
+            state.addition = 0
+            clearDice()
+        }
+
+        function roll() {
+            state.rolling = true
+
+            throwDice(state.diceToRoll, (values) => {
+                state.upsideValues = values
+                state.rolling = false
+            });
         }
 
         onMounted(() => {
@@ -89,10 +162,10 @@ export default {
             ...toRefs(state), // destructure reactive object
             diceTypes,
             diceSymbol,
-            addToRoll,
+            addDice,
             clearRoll,
-            roll,
-            getUpsideValues
+            formulaToDice,
+            roll
         }
     }
 }

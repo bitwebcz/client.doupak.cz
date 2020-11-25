@@ -6,6 +6,15 @@ export default function useDice() {
 
   let world, camera, scene, renderer, dice=[], canvasHeight, canvasWidth;
 
+  const objTypes = {
+      '4': DiceD4,
+      '6': DiceD6,
+      '8': DiceD8,
+      '10': DiceD10,
+      '12': DiceD12,
+      '20': DiceD20
+  };
+
   function initCannon() {
       world = new CANNON.World();
       world.gravity.set(0, 0, -9.8 * 100);
@@ -17,26 +26,25 @@ export default function useDice() {
       world.add(floorBody);
 
       // Walls
-      // TODO: fix barrier positioning
       let barrier;
       barrier = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.barrierBodyMaterial});
       barrier.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
-      barrier.position.set(0, canvasHeight * 0.93, 0);
+      barrier.position.set(0, 10, 0); // 10 calculate from height?
       world.add(barrier);
 
       barrier = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.barrierBodyMaterial});
       barrier.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-      barrier.position.set(0, -canvasHeight * 0.93, 0);
+      barrier.position.set(0, -10, 0); // -10 calculate from height?
       world.add(barrier);
 
       barrier = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.barrierBodyMaterial});
       barrier.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI / 2);
-      barrier.position.set(canvasWidth * 0.93, 0, 0);
+      barrier.position.set(20, 0, 0); // 20 calculate from width?
       world.add(barrier);
 
       barrier = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.barrierBodyMaterial});
       barrier.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 2);
-      barrier.position.set(-canvasWidth * 0.93, 0, 0);
+      barrier.position.set(-20, 0, 0); // -20 calculate from width?
       world.add(barrier);
 
       // set the dice world!
@@ -44,25 +52,18 @@ export default function useDice() {
   }
 
   function initThree(canvas) {
-      scene = new THREE.Scene()
+      scene = new THREE.Scene();
       canvasWidth = canvas.clientWidth;
       canvasHeight = canvas.clientHeight;
       camera = new THREE.PerspectiveCamera(40, canvasWidth / canvasHeight, 0.01, 200);
       camera.position.set(0, 0, 40);
 
-      renderer = new THREE.WebGLRenderer({antialias: true, alpha: true}) // alpha = transparent background
+      renderer = new THREE.WebGLRenderer({antialias: true, alpha: true}); // alpha = transparent background
       renderer.setClearColor( 0x000000, 0 ); // the default
       renderer.setSize(canvasWidth, canvasHeight);
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      canvas.appendChild(renderer.domElement) // add renderer inside DOM
-
-      // make canvas responsive
-      window.addEventListener('resize', () => {
-          renderer.setSize(canvas.clientWidth, canvas.clientHeight)
-          camera.aspect = canvas.clientWidth/canvas.clientHeight
-          camera.updateProjectionMatrix()
-      })
+      canvas.appendChild(renderer.domElement); // add renderer inside DOM
 
       let ambient = new THREE.AmbientLight(0xf0f5fb, 0.3);
       scene.add(ambient);
@@ -84,45 +85,34 @@ export default function useDice() {
       scene.add(floor);
   }
 
-  function throwDice(diceToRoll) {
+  function throwDice(diceToRoll, callback) {
       clearDice();
 
-      const objTypes = {
-          'd4': DiceD4,
-          'd6': DiceD6,
-          'd8': DiceD8,
-          'd10': DiceD10,
-          'd12': DiceD12,
-          'd20': DiceD20
-      };
+      Object.entries(diceToRoll).forEach(entry => {
+          const [dieType, count] = entry;
 
-      const diceVals = [];
-      diceToRoll.forEach((dieType, index) => {
-          const die = new objTypes[dieType]();
+          for (let i = 0; i < count; i++) {
+              const die = new objTypes[dieType]();
 
-          die.getObject().position.x = -10 + index;
-          die.getObject().position.y = -10 + index*3;
-          die.getObject().position.z = 2;
-          die.getObject().rotation.x = (40 + index) * Math.PI / 180;
+              die.getObject().position.x = -10 + i;
+              die.getObject().position.y = -5 + i;
+              die.getObject().position.z = 2;
+              die.getObject().rotation.x = (40 + i) * Math.PI / 180;
 
-          let yRand = Math.random() * 10; // 20
-          let rand = Math.random() * 100; // 5
-          die.getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
-          die.getObject().body.angularVelocity.set(20 * Math.random() -10, 20 * Math.random() -10, 20 * Math.random() -10);
+              let yRand = Math.random() * 10; // 20
+              let rand = Math.random() * 100; // 5
+              die.getObject().body.velocity.set(25 + rand, 40 + yRand, 15 + rand);
+              die.getObject().body.angularVelocity.set(20 * Math.random() -10, 20 * Math.random() -10, 20 * Math.random() -10);
 
-          scene.add(die.getObject());
-          die.updateBodyFromMesh();
-          dice.push(die);
-          diceVals.push({dice:die, value:1});
+              scene.add(die.getObject());
+              die.updateBodyFromMesh();
+              dice.push(die);
+          }
       });
 
-      // DiceManager.prepareValues(diceVals);
-  }
-
-  function getUpsideValues() {
-      dice.forEach((die) => {
-          console.log(die.getUpsideValue())
-      });
+      DiceManager.unpreparedRoll(dice, (values) => {
+          callback(values);
+      })
   }
 
   function clearDice() {
@@ -135,7 +125,6 @@ export default function useDice() {
       dice = [];
   }
 
-
   function animate() {
       updatePhysics();
       render();
@@ -145,14 +134,14 @@ export default function useDice() {
   function updatePhysics() {
       world.step(1.0 / 60.0);
 
-      for (let i in dice) {
-          dice[i].updateMeshFromBody();
-      }
+      dice.forEach((die) => {
+          die.updateMeshFromBody();
+      });
   }
 
   function render() {
       renderer.render( scene, camera );
   }
 
-  return { initThree, initCannon, animate, throwDice, clearDice, getUpsideValues };
+  return { initThree, initCannon, animate, throwDice, clearDice };
 }

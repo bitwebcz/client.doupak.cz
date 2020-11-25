@@ -24,6 +24,34 @@ class DiceManagerClass {
         );
     }
 
+    unpreparedRoll(dice, callback) {
+        if (this.throwRunning) throw new Error('Cannot start another throw. Please wait, till the current throw is finished.');
+        this.throwRunning = true;
+
+        let check = () => {
+            let prepared = 0;
+            const values = {};
+
+            dice.forEach((die) => {
+                if (die.isFinished()) {
+                    values[die.values] = values[die.values] || [];
+                    values[die.values].push(die.getUpsideValue());
+                    prepared++;
+                } else {
+                    prepared = 0;
+                }
+            });
+
+            if (prepared == dice.length) {
+                DiceManager.world.removeEventListener('postStep', check);
+                this.throwRunning = false;
+                callback(values);
+            }
+        };
+
+        this.world.addEventListener('postStep', check);
+    }
+
     /**
      *
      * @param {array} diceValues
@@ -124,54 +152,54 @@ class DiceObject {
         return options;
     }
 
-    emulateThrow(callback) {
-        let stableCount = 0;
+    // emulateThrow(callback) {
+    //     let stableCount = 0;
+    //
+    //     let check = () => {
+    //         if (this.isFinished()) {
+    //             stableCount++;
+    //
+    //             if (stableCount === 50) {
+    //                 DiceManager.world.removeEventListener('postStep', check);
+    //                 callback(this.getUpsideValue());
+    //             }
+    //         } else {
+    //             stableCount = 0;
+    //         }
+    //
+    //         DiceManager.world.step(DiceManager.world.dt);
+    //     };
+    //
+    //     DiceManager.world.addEventListener('postStep', check);
+    // }
 
-        let check = () => {
-            if (this.isFinished()) {
-                stableCount++;
-
-                if (stableCount === 50) {
-                    DiceManager.world.removeEventListener('postStep', check);
-                    callback(this.getUpsideValue());
-                }
-            } else {
-                stableCount = 0;
-            }
-
-            DiceManager.world.step(DiceManager.world.dt);
-        };
-
-        DiceManager.world.addEventListener('postStep', check);
-    }
-
-    // only usable with single die roll (due to single postStep event)
-    rollToValue(value) {
-        let stableCount = 0;
-        // remember the emulated roll vectors
-        const rollVectors = this.getCurrentVectors();
-
-        let check = () => {
-            if (this.isFinished()) {
-                stableCount++;
-
-                if (stableCount > 50) {
-                    DiceManager.world.removeEventListener('postStep', check);
-                    // shift the upper face value
-                    this.shiftUpperValue(value)
-                    // repeat the roll with the same vectors
-                    this.setVectors(rollVectors);
-                }
-            } else {
-                stableCount = 0;
-            }
-
-            // hide the emulated roll
-            DiceManager.world.step(DiceManager.world.dt);
-        };
-
-        DiceManager.world.addEventListener('postStep', check);
-    }
+    // // only usable with single die roll (due to single postStep event)
+    // rollToValue(value) {
+    //     let stableCount = 0;
+    //     // remember the emulated roll vectors
+    //     const rollVectors = this.getCurrentVectors();
+    //
+    //     let check = () => {
+    //         if (this.isFinished()) {
+    //             stableCount++;
+    //
+    //             if (stableCount > 50) {
+    //                 DiceManager.world.removeEventListener('postStep', check);
+    //                 // shift the upper face value
+    //                 this.shiftUpperValue(value)
+    //                 // repeat the roll with the same vectors
+    //                 this.setVectors(rollVectors);
+    //             }
+    //         } else {
+    //             stableCount = 0;
+    //         }
+    //
+    //         // hide the emulated roll
+    //         DiceManager.world.step(DiceManager.world.dt);
+    //     };
+    //
+    //     DiceManager.world.addEventListener('postStep', check);
+    // }
 
     isFinished() {
         let threshold = 1;
